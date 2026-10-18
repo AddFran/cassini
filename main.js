@@ -1,5 +1,6 @@
 import { crearShader } from "./js/crearShader.js";
 import {cargarTextura} from "./js/cargarTextura.js";
+import {crearMalla} from "./js/crearMalla.js";
 import * as m from "./js/operacionesMatrices.js";
 import * as figure from "./js/crearFiguras.js";
 
@@ -19,7 +20,7 @@ const esfera=figure.crearEsfera(3.0,32,48);
 //const esfera=figure.crearCilindro(1,4,32);
 //const esfera=figure.crearPrismaTriangular(2,4);
 
-const anillo=figure.crearAnillo(1,2,64)
+const anillo=figure.crearAnillo(4,5,64)
 
 const vertexShaderSource = `#version 300 es 
 in vec3 aPosition; 
@@ -102,36 +103,12 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 
 gl.useProgram(program);
 
-const vao = gl.createVertexArray();
-gl.bindVertexArray(vao);
-
-const vertexBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer);
-gl.bufferData(gl.ARRAY_BUFFER,esfera.vertices,gl.STATIC_DRAW);
-
-const indexBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,indexBuffer);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,esfera.indices,gl.STATIC_DRAW);
-
-const stride=8*Float32Array.BYTES_PER_ELEMENT;
-
-// Posicion
-const positionLocation = gl.getAttribLocation(program,"aPosition");
-gl.enableVertexAttribArray(positionLocation);
-gl.vertexAttribPointer(positionLocation,3,gl.FLOAT,false,stride,0);
-
-// Normal
-const normalLocation = gl.getAttribLocation(program, "aNormal");
-gl.enableVertexAttribArray(normalLocation);
-gl.vertexAttribPointer(normalLocation,3,gl.FLOAT,false,stride,3*Float32Array.BYTES_PER_ELEMENT);
-
-// UV
-const texCoordLocation = gl.getAttribLocation(program, "aTexCoord");
-gl.enableVertexAttribArray(texCoordLocation);
-gl.vertexAttribPointer(texCoordLocation,2,gl.FLOAT,false,stride,6*Float32Array.BYTES_PER_ELEMENT);
+const mallaSaturno = crearMalla(gl,program,esfera);
+const mallaAnillo = crearMalla(gl,program,anillo);
 
 const texturaSol = cargarTextura(gl,"texture/sol.jpg");
 const texturaSaturno = cargarTextura(gl,"texture/saturno.jpg");
+const texturaAnillo = cargarTextura(gl,"texture/anillo_saturno.png");
 
 const modelMatrixLocation = gl.getUniformLocation(program,"uModelMatrix");
 const viewMatrixLocation = gl.getUniformLocation(program,"uViewMatrix");
@@ -164,7 +141,7 @@ gl.uniform3fv(lightDirectionLocation, lightDirection);
 
 gl.uniform1i(textureLoc, 0);
 
-function dibujarCuerpo(textura, modelMatrix, emisivo) {
+function dibujarCuerpo(textura, modelMatrix, emisivo, indicesLength) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textura);
 
@@ -173,7 +150,7 @@ function dibujarCuerpo(textura, modelMatrix, emisivo) {
 
     gl.drawElements(
         gl.TRIANGLES,
-        esfera.indices.length,
+        indicesLength,
         gl.UNSIGNED_SHORT,
         0
     );
@@ -197,7 +174,7 @@ function render(ms) {
         gl.DEPTH_BUFFER_BIT
     );
 
-    gl.bindVertexArray(vao);
+    gl.bindVertexArray(mallaSaturno.vao);
 
     const modelSaturno =
         m.multiplicarMat4(
@@ -208,17 +185,26 @@ function render(ms) {
     dibujarCuerpo(
         texturaSaturno,
         modelSaturno,
-        true
+        true,
+        mallaSaturno.numIndices
     );
 
-    const modelTierra =
+    gl.bindVertexArray(mallaAnillo.vao);
+
+    const modelAnillo =
         m.multiplicarMat4(
-            m.matrizTraslacion4(3.0, 0.0, 0.0),
-            m.multiplicarMat4(
-                m.matrizRotacionY(giroTierra),
-                m.matrizEscala4(0.55, 0.55, 0.55)
-            )
-        );
+            modelSaturno,
+            m.matrizRotacionX(Math.PI/2)
+    );
+
+    dibujarCuerpo(
+        texturaAnillo,
+        modelAnillo,
+        true,
+        mallaAnillo.numIndices
+    );
+
+    gl.bindVertexArray(null);
 
     //dibujarCuerpo(texturaTierra,modelTierra,false);
 
