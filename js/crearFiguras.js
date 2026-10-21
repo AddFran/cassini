@@ -114,7 +114,7 @@ export function crearEsfera(radio,segmentosLatitud,segmentosLongitud){
 }
 
 
-export function crearCilindro(radio, altura, segmentos) {
+export function crearCilindro(radio,altura,segmentos){
     const vertices=[];
     const indices=[];
 
@@ -363,8 +363,6 @@ export function crearAnillo(radioInterior, radioExterior, segmentos) {
     const vertices = [];
     const indices = [];
 
-    // El anillo se construye inicialmente en el plano XY.
-    // Cada segmento tiene un vértice interior y otro exterior.
     for (let i = 0; i <= segmentos; i++) {
         const angulo = (i / segmentos) * Math.PI * 2;
 
@@ -377,22 +375,22 @@ export function crearAnillo(radioInterior, radioExterior, segmentos) {
         const xExterior = radioExterior * cos;
         const yExterior = radioExterior * sin;
 
-        // Vértice interior: posición, normal y UV.
+        // Vértice interior: U = 0.0 (borde interior), V = ángulo
         vertices.push(
             xInterior, yInterior, 0,
             0, 0, 1,
-            i / segmentos, 0
+            0.0, i / segmentos
         );
 
-        // Vértice exterior.
+        // Vértice exterior: U = 1.0 (borde exterior), V = ángulo
         vertices.push(
             xExterior, yExterior, 0,
             0, 0, 1,
-            i / segmentos, 1
+            1.0, i / segmentos
         );
     }
 
-    // Cada tramo se divide en dos triángulos.
+    // El resto de los índices se queda exactamente igual
     for (let i = 0; i < segmentos; i++) {
         const actual = i * 2;
         const siguiente = actual + 2;
@@ -404,6 +402,71 @@ export function crearAnillo(radioInterior, radioExterior, segmentos) {
     }
 
     return {
+        vertices: new Float32Array(vertices),
+        indices: new Uint16Array(indices)
+    };
+}
+
+
+export function crearCono(radio,altura,segmentos){
+    const vertices = [];
+    const indices = [];
+
+    // El cono se extiende desde y = 0 hasta y = altura.
+    // La abertura está arriba y el vértice abajo.
+    for(let i=0;i<=segmentos;i++){
+        const u=i/segmentos;
+        const theta=u*Math.PI*2;
+
+        const x=radio*Math.cos(theta);
+        const z=radio*Math.sin(theta);
+
+        // Normal de la superficie lateral
+        const longitud=Math.sqrt(altura*altura+radio*radio);
+
+        const nx=altura*Math.cos(theta)/longitud;
+        const ny=radio/longitud;
+        const nz=altura*Math.sin(theta)/longitud;
+
+        // Vértice superior: borde de la abertura
+        vertices.push(
+            x,altura,z,
+            nx,ny,nz,
+            u,1
+        );
+
+        // Vértice inferior: punta del cono
+        vertices.push(
+            0,0,0,
+            nx,ny,nz,
+            u,0
+        );
+    }
+
+    // Unir los vértices para formar triángulos
+    for(let i=0;i<segmentos;i++){
+        const actual=i*2;
+
+        const superiorActual=actual;
+        const inferiorActual=actual+1;
+
+        const superiorSiguiente=actual+2;
+        const inferiorSiguiente=actual+3;
+
+        indices.push(
+            superiorActual,
+            inferiorActual,
+            superiorSiguiente
+        );
+
+        indices.push(
+            superiorSiguiente,
+            inferiorActual,
+            inferiorSiguiente
+        );
+    }
+
+    return{
         vertices: new Float32Array(vertices),
         indices: new Uint16Array(indices)
     };
