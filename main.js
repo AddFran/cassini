@@ -3,6 +3,9 @@ import {cargarTextura} from "./js/cargarTextura.js";
 import {crearMalla} from "./js/crearMalla.js";
 import * as m from "./js/operacionesMatrices.js";
 import * as figure from "./js/crearFiguras.js";
+import * as draw from "./js/dibujarCuerpo.js";
+
+import{Draw} from "./js/dibujarCuerpo.js";
 
 const canvas=document.getElementById("glCanvas"); 
 const gl=canvas.getContext("webgl2");
@@ -291,7 +294,9 @@ function render(ms) {
         )
     );
     gl.bindVertexArray(mallaSaturno.vao);
-    dibujarCuerpo(texturaSaturno,modelSaturno,false,mallaSaturno.numIndices);
+    const saturnoDraw=new Draw(gl,modelMatrixLocation,emissiveLoc,texturaSaturno,modelSaturno,false,mallaSaturno.numIndices,null);
+    saturnoDraw.dibujarCuerpo();
+    //dibujarCuerpo(texturaSaturno,modelSaturno,false,mallaSaturno.numIndices);
 
     // Anillo
     const modelAnillo=m.multiplicarMat4(
