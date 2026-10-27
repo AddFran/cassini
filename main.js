@@ -211,7 +211,7 @@ gl.uniformMatrix4fv(projectionMatrixLocation,false,projectionMatrix);
 const lightDirection = m.normalizarVec3([-1.0, -0.5, -1.0]);
 gl.uniform3fv(lightDirectionLocation, lightDirection);
 
-gl.uniform1i(textureLoc, 0);
+gl.uniform1i(textureLoc,0);
 
 function dibujarCuerpo(textura,modelMatrix,emisivo,indicesLength){
     gl.activeTexture(gl.TEXTURE0);
@@ -283,6 +283,10 @@ function render(ms) {
     gl.useProgram(program);
     gl.uniformMatrix4fv(viewMatrixLocation,false,viewMatrix);
 
+    Draw.Gl=gl;
+    Draw.ModMatLoc=modelMatrixLocation;
+    Draw.EmiLoc=emissiveLoc;
+
     dibujarFondo();
 
     // Saturno
@@ -294,7 +298,7 @@ function render(ms) {
         )
     );
     gl.bindVertexArray(mallaSaturno.vao);
-    const saturnoDraw=new Draw(gl,modelMatrixLocation,emissiveLoc,texturaSaturno,modelSaturno,false,mallaSaturno.numIndices,null);
+    const saturnoDraw=new Draw(texturaSaturno,modelSaturno,false,mallaSaturno.numIndices,null);
     saturnoDraw.dibujarCuerpo();
     //dibujarCuerpo(texturaSaturno,modelSaturno,false,mallaSaturno.numIndices);
 
