@@ -1,11 +1,12 @@
-import { crearShader } from "./js/crearShader.js";
-import {cargarTextura} from "./js/cargarTextura.js";
-import {crearMalla} from "./js/crearMalla.js";
-import * as m from "./js/operacionesMatrices.js";
-import * as figure from "./js/crearFiguras.js";
+//import * as m from "./js/operacionesMatrices.js";
 import * as draw from "./js/dibujarCuerpo.js";
 
-import{Draw} from "./js/dibujarCuerpo.js";
+import {Draw} from "./js/dibujarCuerpo.js";
+import {Matrix} from "./js/operacionesMatrices.js";
+import {Geometry} from "./js/crearFiguras.js";
+import {Mesh} from "./js/crearMalla.js";
+import {Texture} from "./js/cargarTextura.js";
+import {Shader} from "./js/crearShader.js";
 
 const canvas=document.getElementById("glCanvas"); 
 const gl=canvas.getContext("webgl2");
@@ -18,18 +19,18 @@ gl.viewport(0,0,canvas.width,canvas.height);
 gl.clearColor(0.0, 0.0, 0.0, 1.0); 
 gl.enable(gl.DEPTH_TEST); 
 
-const esfera=figure.crearEsfera(1,32,48);
-const esferaFondo=figure.crearEsfera(80,48,96);
+const esfera=Geometry.crearEsfera(1,32,48);
+const esferaFondo=Geometry.crearEsfera(80,48,96);
 //const esfera=figure.crearCubo(2);
 //const esfera=figure.crearCilindro(1,4,32);
 //const esfera=figure.crearPrismaTriangular(2,4);
 //const esfera=figure.crearCono(2,1);
 
-const anillo=figure.crearAnillo(2,3,128);
-const cubo=figure.crearCubo(1);
-const cilindro=figure.crearCilindro(1,1,64);
-const prisma=figure.crearPrismaTriangular(1,1);
-const cono1=figure.crearCono(1,1,64);
+const anillo=Geometry.crearAnillo(2,3,128);
+const cubo=Geometry.crearCubo(1);
+const cilindro=Geometry.crearCilindro(1,1,64);
+const prisma=Geometry.crearPrismaTriangular(1,1);
+const cono1=Geometry.crearCono(1,1,64);
 
 const vertexShaderSource = `#version 300 es 
 in vec3 aPosition; 
@@ -80,8 +81,8 @@ void main() {
 }
 `;
 
-const vertexShader=crearShader(gl,gl.VERTEX_SHADER,vertexShaderSource);
-const fragmentShader=crearShader(gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
+const vertexShader=Shader.crearShader(gl,gl.VERTEX_SHADER,vertexShaderSource);
+const fragmentShader=Shader.crearShader(gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
 
 const program=gl.createProgram();
 
@@ -97,33 +98,32 @@ if(!gl.getProgramParameter(program, gl.LINK_STATUS)){
 
 gl.useProgram(program);
 
+const mallaSaturno=Mesh.crearMalla(gl,program,esfera);
+const mallaAnillo=Mesh.crearMalla(gl,program,anillo);
+const mallaFondo=Mesh.crearMalla(gl,program,esferaFondo);
 
-const mallaSaturno=crearMalla(gl,program,esfera);
-const mallaAnillo=crearMalla(gl,program,anillo);
-const mallaFondo=crearMalla(gl,program,esferaFondo);
-
-const mallaCilindro=crearMalla(gl,program,cilindro);
-const mallaCono1=crearMalla(gl,program,cono1);
-const mallaPrisma=crearMalla(gl,program,prisma);
-const mallaCubo=crearMalla(gl,program,cubo);
-
-
-const texturaSol=cargarTextura(gl,"texture/sol.jpg");
-const texturaSaturno=cargarTextura(gl,"texture/saturno.jpg",gl.REPEAT,gl.REPEAT);
-const texturaAnillo=cargarTextura(gl,"texture/anillo_saturno.png",gl.CLAMP_TO_EDGE,gl.REPEAT);
-const texturaFondo=cargarTextura(gl,"texture/fondo_universo.jpg",gl.CLAMP_TO_EDGE,gl.REPEAT);
-
-const texturaDorado=cargarTextura(gl,"texture/cassiniDorado.jpg",gl.REPEAT,gl.REPEAT);
-const texturaDorado2=cargarTextura(gl,"texture/cassiniDorado2.jpg",gl.REPEAT,gl.REPEAT);
-const texturaPlomo=cargarTextura(gl,"texture/cassiniEstandar.jpg",gl.REPEAT,gl.REPEAT);
+const mallaCilindro=Mesh.crearMalla(gl,program,cilindro);
+const mallaCono1=Mesh.crearMalla(gl,program,cono1);
+const mallaPrisma=Mesh.crearMalla(gl,program,prisma);
+const mallaCubo=Mesh.crearMalla(gl,program,cubo);
 
 
-const modelMatrixLocation = gl.getUniformLocation(program,"uModelMatrix");
-const viewMatrixLocation = gl.getUniformLocation(program,"uViewMatrix");
-const projectionMatrixLocation = gl.getUniformLocation(program,"uProjectionMatrix");
-const lightDirectionLocation = gl.getUniformLocation(program,"uLightDirection");
-const textureLoc = gl.getUniformLocation(program, "uTexture");
-const emissiveLoc = gl.getUniformLocation(program, "uEmissive");
+const texturaSol=Texture.cargarTextura(gl,"texture/sol.jpg");
+const texturaSaturno=Texture.cargarTextura(gl,"texture/saturno.jpg",gl.REPEAT,gl.REPEAT);
+const texturaAnillo=Texture.cargarTextura(gl,"texture/anillo_saturno.png",gl.CLAMP_TO_EDGE,gl.REPEAT);
+const texturaFondo=Texture.cargarTextura(gl,"texture/fondo_universo.jpg",gl.CLAMP_TO_EDGE,gl.REPEAT);
+
+const texturaDorado=Texture.cargarTextura(gl,"texture/cassiniDorado.jpg",gl.REPEAT,gl.REPEAT);
+const texturaDorado2=Texture.cargarTextura(gl,"texture/cassiniDorado2.jpg",gl.REPEAT,gl.REPEAT);
+const texturaPlomo=Texture.cargarTextura(gl,"texture/cassiniEstandar.jpg",gl.REPEAT,gl.REPEAT);
+
+
+const modelMatrixLocation=gl.getUniformLocation(program,"uModelMatrix");
+const viewMatrixLocation=gl.getUniformLocation(program,"uViewMatrix");
+const projectionMatrixLocation=gl.getUniformLocation(program,"uProjectionMatrix");
+const lightDirectionLocation=gl.getUniformLocation(program,"uLightDirection");
+const textureLoc=gl.getUniformLocation(program,"uTexture");
+const emissiveLoc=gl.getUniformLocation(program,"uEmissive");
 
 
 const camera={
@@ -151,7 +151,7 @@ function obtenerEyeCamara(){
 }
 function obtenerViewCamara(){
     const eye=obtenerEyeCamara();
-    return m.matrizLookAt(eye,camera.target,[0.0,1.0,0.0]);
+    return Matrix.matrizLookAt(eye,camera.target,[0.0,1.0,0.0]);
 }
 let arrastrando=false;
 let mouseAnteriorX=0;
@@ -181,13 +181,13 @@ window.addEventListener("mousemove",(evento) => {
 
     const limiteVertical=Math.PI/2-0.05;
 
-    //camera.elevacion = limitar(camera.elevacion,-limiteVertical,limiteVertical);
+    camera.elevacion = limitar(camera.elevacion,-limiteVertical,limiteVertical);
 });
 canvas.addEventListener("wheel", (evento) => {
     evento.preventDefault();
     camera.distancia+=evento.deltaY * camera.sensibilidadZoom;
 
-    //camera.distancia = limitar(camera.distancia,camera.distanciaMin,camera.distanciaMax);
+    camera.distancia = limitar(camera.distancia,camera.distanciaMin,camera.distanciaMax);
 }, { passive: false });
 
 const fovGrados = 60;                           
@@ -200,7 +200,7 @@ const far = 100.0;
 //const projectionMatrix = m.matrizPerspectiva(fovRadianes,aspect,near,far);
 
 //
-const projectionMatrix = m.matrizPerspectiva(fovRadianes,aspect,near,far);
+const projectionMatrix = Matrix.matrizPerspectiva(fovRadianes,aspect,near,far);
 
 gl.useProgram(program);
 
@@ -208,7 +208,7 @@ gl.useProgram(program);
 gl.uniformMatrix4fv(projectionMatrixLocation,false,projectionMatrix);
 
 // La dirección de la luz
-const lightDirection = m.normalizarVec3([-1.0, -0.5, -1.0]);
+const lightDirection = Matrix.normalizarVec3([-1.0, -0.5, -1.0]);
 gl.uniform3fv(lightDirectionLocation, lightDirection);
 
 gl.uniform1i(textureLoc,0);
@@ -241,7 +241,7 @@ function dibujarFondo() {
 
     // La esfera permanece centrada en el origen
     const eye = obtenerEyeCamara();
-    const modelFondo = m.matrizTraslacion4(eye[0],eye[1],eye[2]);
+    const modelFondo = Matrix.matrizTraslacion4(eye[0],eye[1],eye[2]);
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelFondo);
 
     gl.drawElements(gl.TRIANGLES,mallaFondo.numIndices,gl.UNSIGNED_SHORT,0);
@@ -290,11 +290,11 @@ function render(ms) {
     dibujarFondo();
 
     // Saturno
-    const modelSaturno=m.multiplicarMat4(
-        m.matrizTraslacion4(-10,-20,-100),
-        m.multiplicarMat4(
-            m.matrizRotacionY(giroSaturno),
-            m.matrizEscala4(50,50,50)
+    const modelSaturno=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(-10,-20,-100),
+        Matrix.multiplicarMat4(
+            Matrix.matrizRotacionY(giroSaturno),
+            Matrix.matrizEscala4(50,50,50)
         )
     );
     gl.bindVertexArray(mallaSaturno.vao);
@@ -303,9 +303,9 @@ function render(ms) {
     //dibujarCuerpo(texturaSaturno,modelSaturno,false,mallaSaturno.numIndices);
 
     // Anillo
-    const modelAnillo=m.multiplicarMat4(
+    const modelAnillo=Matrix.multiplicarMat4(
         modelSaturno,
-        m.matrizRotacionX(Math.PI/2)
+        Matrix.matrizRotacionX(Math.PI/2)
     );
     gl.bindVertexArray(mallaAnillo.vao);
     dibujarCuerpo(texturaAnillo,modelAnillo,true,mallaAnillo.numIndices);
@@ -313,142 +313,142 @@ function render(ms) {
     // Cassini
 
     // Cilindro principal (main)
-    const modelCassiniMain=m.multiplicarMat4(m.matrizRotacionY(0),m.matrizEscala4(1,2.5,1));
+    const modelCassiniMain=Matrix.multiplicarMat4(Matrix.matrizRotacionY(0),Matrix.matrizEscala4(1,2.5,1));
     
     gl.bindVertexArray(mallaCilindro.vao);
     dibujarCuerpo(texturaDorado,modelCassiniMain,false,mallaCilindro.numIndices);
 
     // Antena Main
-    const localAntenaMain=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0.4,0),
-        m.matrizEscala4(0.05,1,0.05)
+    const localAntenaMain=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0.4,0),
+        Matrix.matrizEscala4(0.05,1,0.05)
     );
-    const modelAntenaMain=m.multiplicarMat4(modelCassiniMain,localAntenaMain);
+    const modelAntenaMain=Matrix.multiplicarMat4(modelCassiniMain,localAntenaMain);
     dibujarCuerpo(texturaPlomo,modelAntenaMain,false,mallaCilindro.numIndices);
 
     // Antena Main1
-    const localAntenaMain1=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0.88,0),
-        m.matrizEscala4(0.1,0.03,0.1)
+    const localAntenaMain1=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0.88,0),
+        Matrix.matrizEscala4(0.1,0.03,0.1)
     );
-    const modelAntenaMain1=m.multiplicarMat4(modelCassiniMain,localAntenaMain1);
+    const modelAntenaMain1=Matrix.multiplicarMat4(modelCassiniMain,localAntenaMain1);
     dibujarCuerpo(texturaPlomo,modelAntenaMain1,false,mallaCilindro.numIndices);
 
     // Base Antena Main
-    const localBaseAntenaMain=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0.52,0),
-        m.matrizEscala4(0.88,0.02,0.88)
+    const localBaseAntenaMain=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0.52,0),
+        Matrix.matrizEscala4(0.88,0.02,0.88)
     );
-    const modelBaseAntenaMain=m.multiplicarMat4(modelCassiniMain,localBaseAntenaMain);
+    const modelBaseAntenaMain=Matrix.multiplicarMat4(modelCassiniMain,localBaseAntenaMain);
     dibujarCuerpo(texturaPlomo,modelBaseAntenaMain,false,mallaCilindro.numIndices);
 
     // Soporte Base
-    const localBaseSoporte=m.multiplicarMat4(
-        m.matrizTraslacion4(0,-0.55,0),
-        m.matrizEscala4(0.6,0.1,0.6)
+    const localBaseSoporte=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,-0.55,0),
+        Matrix.matrizEscala4(0.6,0.1,0.6)
     );
-    const modelBaseSoporte=m.multiplicarMat4(modelCassiniMain,localBaseSoporte);
+    const modelBaseSoporte=Matrix.multiplicarMat4(modelCassiniMain,localBaseSoporte);
     dibujarCuerpo(texturaPlomo,modelBaseSoporte,false,mallaCilindro.numIndices);
 
     // Soporte Base 2
-    const localBaseSoporte2=m.multiplicarMat4(
-        m.matrizTraslacion4(0,-0.5,0),
-        m.matrizEscala4(0.7,0.08,0.7)
+    const localBaseSoporte2=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,-0.5,0),
+        Matrix.matrizEscala4(0.7,0.08,0.7)
     );
-    const modelBaseSoporte2=m.multiplicarMat4(modelCassiniMain,localBaseSoporte2);
+    const modelBaseSoporte2=Matrix.multiplicarMat4(modelCassiniMain,localBaseSoporte2);
     dibujarCuerpo(texturaDorado2,modelBaseSoporte2,false,mallaCilindro.numIndices);
 
     // Soporte Base 3
-    const localBaseSoporte3=m.multiplicarMat4(
-        m.matrizTraslacion4(0,-0.6,0),
-        m.matrizEscala4(0.8,0.06,0.8)
+    const localBaseSoporte3=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,-0.6,0),
+        Matrix.matrizEscala4(0.8,0.06,0.8)
     );
-    const modelBaseSoporte3=m.multiplicarMat4(modelCassiniMain,localBaseSoporte3);
+    const modelBaseSoporte3=Matrix.multiplicarMat4(modelCassiniMain,localBaseSoporte3);
     dibujarCuerpo(texturaDorado2,modelBaseSoporte3,false,mallaCilindro.numIndices);
 
     // Antena 1
-    const localAntena=m.multiplicarMat4(m.matrizTraslacion4(0,0.2,0),m.matrizEscala4(1.6,0.6,1.6));
-    const modelAntena=m.multiplicarMat4(modelCassiniMain,localAntena);
+    const localAntena=Matrix.multiplicarMat4(Matrix.matrizTraslacion4(0,0.2,0),Matrix.matrizEscala4(1.6,0.6,1.6));
+    const modelAntena=Matrix.multiplicarMat4(modelCassiniMain,localAntena);
     
     gl.bindVertexArray(mallaCono1.vao);
     dibujarCuerpo(texturaPlomo,modelAntena,false,mallaCono1.numIndices);
 
     // Anteanna Main2
-    const localAntenaMain2=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0.9,0),
-        m.matrizEscala4(0.1,0.03,0.1)
+    const localAntenaMain2=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0.9,0),
+        Matrix.matrizEscala4(0.1,0.03,0.1)
     );
-    const modelAntenaMain2=m.multiplicarMat4(modelCassiniMain,localAntenaMain2);
+    const modelAntenaMain2=Matrix.multiplicarMat4(modelCassiniMain,localAntenaMain2);
     dibujarCuerpo(texturaPlomo,modelAntenaMain2,false,mallaCono1.numIndices);
 
     // Mastil
-    const localMastil=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0.42,0),
-        m.multiplicarMat4(
-            m.multiplicarMat4(m.matrizRotacionY(45),m.matrizRotacionZ(45)),
-            m.matrizEscala4(0.35,0.35,6)
+    const localMastil=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0.42,0),
+        Matrix.multiplicarMat4(
+            Matrix.multiplicarMat4(Matrix.matrizRotacionY(45),Matrix.matrizRotacionZ(45)),
+            Matrix.matrizEscala4(0.35,0.35,6)
         )
     );
-    const modelMastil=m.multiplicarMat4(modelCassiniMain,localMastil);
+    const modelMastil=Matrix.multiplicarMat4(modelCassiniMain,localMastil);
 
     gl.bindVertexArray(mallaPrisma.vao);
     dibujarCuerpo(texturaDorado2,modelMastil,false,mallaPrisma.numIndices);
 
     // Antena 2
-    const localAntena2=m.multiplicarMat4(
-        m.matrizTraslacion4(0,0,1.15),
-        m.multiplicarMat4(
-            m.matrizRotacionX(-1.5),
-            m.matrizEscala4(1,0.1,0.4)
+    const localAntena2=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,0,1.15),
+        Matrix.multiplicarMat4(
+            Matrix.matrizRotacionX(-1.5),
+            Matrix.matrizEscala4(1,0.1,0.4)
         )   
     );
-    const modelAntena2=m.multiplicarMat4(modelCassiniMain,localAntena2);
+    const modelAntena2=Matrix.multiplicarMat4(modelCassiniMain,localAntena2);
 
     gl.bindVertexArray(mallaCono1.vao);
     dibujarCuerpo(texturaDorado2,modelAntena2,false,mallaCono1.numIndices);
 
     // Soporte
-    const localSoporte1=m.multiplicarMat4(
-        m.matrizTraslacion4(0,-0.5,1),
-        m.matrizEscala4(0.1,0.5,0.1)
+    const localSoporte1=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,-0.5,1),
+        Matrix.matrizEscala4(0.1,0.5,0.1)
     );
-    const modelSoporte1=m.multiplicarMat4(modelCassiniMain,localSoporte1);
+    const modelSoporte1=Matrix.multiplicarMat4(modelCassiniMain,localSoporte1);
     gl.bindVertexArray(mallaCubo.vao);
     dibujarCuerpo(texturaPlomo,modelSoporte1,false,mallaCubo.numIndices);
 
-    const localSoporte2=m.multiplicarMat4(
-        m.matrizTraslacion4(0,-0.5,-1),
-        m.matrizEscala4(0.1,0.5,0.1)
+    const localSoporte2=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(0,-0.5,-1),
+        Matrix.matrizEscala4(0.1,0.5,0.1)
     );
-    const modelSoporte2=m.multiplicarMat4(modelCassiniMain,localSoporte2);
+    const modelSoporte2=Matrix.multiplicarMat4(modelCassiniMain,localSoporte2);
     dibujarCuerpo(texturaPlomo,modelSoporte2,false,mallaCubo.numIndices);
 
-    const localSoporte3=m.multiplicarMat4(
-        m.matrizTraslacion4(1,-0.5,0),
-        m.matrizEscala4(0.1,0.5,0.1)
+    const localSoporte3=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(1,-0.5,0),
+        Matrix.matrizEscala4(0.1,0.5,0.1)
     );
-    const modelSoporte3=m.multiplicarMat4(modelCassiniMain,localSoporte3);
+    const modelSoporte3=Matrix.multiplicarMat4(modelCassiniMain,localSoporte3);
     dibujarCuerpo(texturaPlomo,modelSoporte3,false,mallaCubo.numIndices);
 
-    const localSoporte4=m.multiplicarMat4(
-        m.matrizTraslacion4(-1,-0.5,0),
-        m.matrizEscala4(0.1,0.5,0.1)
+    const localSoporte4=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(-1,-0.5,0),
+        Matrix.matrizEscala4(0.1,0.5,0.1)
     );
-    const modelSoporte4=m.multiplicarMat4(modelCassiniMain,localSoporte4);
+    const modelSoporte4=Matrix.multiplicarMat4(modelCassiniMain,localSoporte4);
     dibujarCuerpo(texturaPlomo,modelSoporte4,false,mallaCubo.numIndices);
 
-    const localSoporte5=m.multiplicarMat4(
-        m.matrizTraslacion4(-0.8,0,0),
-        m.matrizEscala4(1,0.6,1)
+    const localSoporte5=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(-0.8,0,0),
+        Matrix.matrizEscala4(1,0.6,1)
     );
-    const modelSoporte5=m.multiplicarMat4(modelCassiniMain,localSoporte5);
+    const modelSoporte5=Matrix.multiplicarMat4(modelCassiniMain,localSoporte5);
     dibujarCuerpo(texturaDorado2,modelSoporte5,false,mallaCubo.numIndices);
 
-    const localSoporte6=m.multiplicarMat4(
-        m.matrizTraslacion4(-0.6,0.1,0),
-        m.matrizEscala4(1,0.6,0.8)
+    const localSoporte6=Matrix.multiplicarMat4(
+        Matrix.matrizTraslacion4(-0.6,0.1,0),
+        Matrix.matrizEscala4(1,0.6,0.8)
     );
-    const modelSoporte6=m.multiplicarMat4(modelCassiniMain,localSoporte6);
+    const modelSoporte6=Matrix.multiplicarMat4(modelCassiniMain,localSoporte6);
     dibujarCuerpo(texturaDorado,modelSoporte6,false,mallaCubo.numIndices);
 
     gl.bindVertexArray(null);
