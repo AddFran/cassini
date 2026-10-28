@@ -33,7 +33,6 @@ export class Matrix{
         ];
     }
 
-    // new
     static transformarPunto(m,p){
         const x=p[0];
         const y=p[1];
@@ -45,7 +44,7 @@ export class Matrix{
             m[2]*x+m[6]*y+m[10]*z+m[14]
         ];
     }
-    // new
+
     static transformarNormal(m,n){
         const x=n[0];
         const y=n[1];
@@ -136,20 +135,20 @@ export class Matrix{
     }
 
     static matrizPerspectiva(fovRadianes,aspect,near,far){
-        const f=1.0 / Math.tan(fovRadianes / 2);
-        const nf=1 / (near - far);
+        const f=1.0/Math.tan(fovRadianes/2);
+        const nf=1/(near-far);
 
         return new Float32Array([
-            f / aspect, 0, 0, 0,            
+            f/aspect, 0, 0, 0,            
             0, f, 0, 0,                     
-            0, 0, (far + near) * nf, -1,                      
-            0, 0, (2 * far * near) * nf, 0  
+            0, 0, (far+near)*nf, -1,                      
+            0, 0, (2*far*near)*nf, 0  
         ]);
     }
 
     static matrizLookAt(eye,target,up){
-        const zAxis=Matrix.normalizarVec3(Matrix.restarVec3(eye, target));
-        const xAxis=Matrix.normalizarVec3(Matrix.productoCruz(up, zAxis));
+        const zAxis=Matrix.normalizarVec3(Matrix.restarVec3(eye,target));
+        const xAxis=Matrix.normalizarVec3(Matrix.productoCruz(up,zAxis));
         const yAxis=Matrix.productoCruz(zAxis,xAxis);
 
         return new Float32Array([
@@ -169,21 +168,21 @@ export class Matrix{
             0,
 
             -(
-                xAxis[0] * eye[0] +
-                xAxis[1] * eye[1] +
-                xAxis[2] * eye[2]
+                xAxis[0]*eye[0]+
+                xAxis[1]*eye[1]+
+                xAxis[2]*eye[2]
             ),
 
             -(
-                yAxis[0] * eye[0] +
-                yAxis[1] * eye[1] +
-                yAxis[2] * eye[2]
+                yAxis[0]*eye[0]+
+                yAxis[1]*eye[1]+
+                yAxis[2]*eye[2]
             ),
 
             -(
-                zAxis[0] * eye[0] +
-                zAxis[1] * eye[1] +
-                zAxis[2] * eye[2]
+                zAxis[0]*eye[0]+
+                zAxis[1]*eye[1]+
+                zAxis[2]*eye[2]
             ),
 
             1
